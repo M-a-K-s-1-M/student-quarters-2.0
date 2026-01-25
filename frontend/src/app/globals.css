@@ -94,6 +94,7 @@
 
 .dark {
   --background: oklch(0.1473 0.0107 285.0074);
+  /* --background: #3e3c64; */
   --foreground: oklch(0.9163 0.0420 285.5407);
   --card: oklch(0.1974 0.0240 283.9877);
   --card-foreground: oklch(0.9163 0.0420 285.5407);
@@ -136,4 +137,8 @@
   --code-selection: oklch(0.2922 0.0290 284.4640);
   --code-border: oklch(0.2922 0.0290 284.4640);
   --radius: 1rem;
+}
+
+body {
+  background-color: var(--color-background);
 }
