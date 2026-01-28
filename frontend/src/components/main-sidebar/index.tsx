@@ -10,7 +10,7 @@ export function MainSidebar() {
     const path = usePathname();
     console.log(path);
     return (
-        <GlassWrapper className="w-20 ml-auto h-fit py-6
+        <GlassWrapper className="w-15 ml-auto h-fit
             flex justify-center rounded-full">
 
             <nav>
@@ -19,8 +19,8 @@ export function MainSidebar() {
                         const Icon = link.icon;
                         return (
                             <li key={link.name}>
-                                <button className={cn(" p-3 rounded-full cursor-pointer hover:bg-foreground/20 transition-colors duration-300", {
-                                    "bg-foreground/30": path === link.href,
+                                <button className={cn(" p-4 rounded-full cursor-pointer transform transition-all duration-300", {
+                                    "bg-white/20": path === link.href,
 
                                 })}>
 
@@ -28,7 +28,7 @@ export function MainSidebar() {
                                         href={link.href}
                                         className="w-full h-full"
                                     >
-                                        {Icon ? <Icon size={30} /> : null}
+                                        {Icon ? <Icon size={25} /> : null}
                                     </Link>
                                 </button>
                             </li>
