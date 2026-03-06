@@ -1,6 +1,6 @@
 
-export default function Main() {
+export default function MainPage() {
     return (
-        <div>Main</div>
+        <div className="container mx-auto px-10">main page</div>
     )
 }

@@ -1,2 +1,4 @@
 export { MainHeader } from './main-header/index';
-export { MainSidebar } from './main-sidebar/index';
+export { DormitoriesList } from './dormitories-list/index';
+export { DormitoryCard } from './dormitory-card/index';
+export { ThemeSwitcher } from './theme-switcher/index';
