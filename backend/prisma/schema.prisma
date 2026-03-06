@@ -34,15 +34,23 @@ model User {
 }
 
 model Dormitory {
-  id          String   @id @default(uuid())
-  name        String
-  description String?
-  price       String?
-  address     String?
-  phone       String?
-  website     String?
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id                  String   @id @default(uuid())
+  sourceId            String?  @unique @map("source_id")
+  sourceUrl           String?  @map("source_url")
+  sourceTitle         String?  @map("source_title")
+  sourceSections      Json?    @map("source_sections")
+  sourceImageUrls     String[] @default([]) @map("source_image_urls")
+  sourcePhotoGroups   Json?    @map("source_photo_groups")
+  sourceExternalLinks String[] @default([]) @map("source_external_links")
+  sourceUpdatedAt     String?  @map("source_updated_at")
+  name                String
+  description         String?
+  price               String?
+  address             String?
+  phone               String?
+  website             String?
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
 
   images              DormitoryImage[]
   reviews             Review[]

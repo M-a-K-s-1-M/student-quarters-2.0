@@ -15,6 +15,7 @@ type DormitoryRecord = {
     title: string;
     sections: DormitorySection[];
     imageUrls: string[];
+    photoGroups?: unknown;
     externalLinks: string[];
     updatedAt?: string;
 };
@@ -106,28 +107,33 @@ const importDormitories = async (): Promise<void> => {
         const images = filterDormitoryImages(record.imageUrls);
 
         const existing =
+            (await prisma.dormitory.findFirst({ where: { sourceId: record.id } })) ||
             (await prisma.dormitory.findFirst({ where: { website } })) ||
             (await prisma.dormitory.findFirst({ where: { name } }));
+
+        const dormitoryData = {
+            sourceId: record.id,
+            sourceUrl: record.url,
+            sourceTitle: record.title,
+            sourceSections: record.sections,
+            sourceImageUrls: record.imageUrls,
+            sourcePhotoGroups: record.photoGroups ?? null,
+            sourceExternalLinks: record.externalLinks,
+            sourceUpdatedAt: record.updatedAt ?? null,
+            name,
+            description,
+            address,
+            phone,
+            website,
+        } as any;
 
         const dormitory = existing
             ? await prisma.dormitory.update({
                 where: { id: existing.id },
-                data: {
-                    name,
-                    description,
-                    address,
-                    phone,
-                    website,
-                },
+                data: dormitoryData,
             })
             : await prisma.dormitory.create({
-                data: {
-                    name,
-                    description,
-                    address,
-                    phone,
-                    website,
-                },
+                data: dormitoryData,
             });
 
         if (existing) {
