@@ -18,7 +18,7 @@ export function DormitoriesList() {
     console.log(dormitories);
 
     return (
-        <ul className="grid grid-cols-3 gap-5">
+        <ul className="flex flex-wrap gap-6 justify-center">
             {dormitories?.map(dormitory => (
                 <DormitoryCard key={dormitory.id} dormitory={dormitory} />
             ))}

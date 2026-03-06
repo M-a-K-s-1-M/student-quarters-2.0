@@ -20,9 +20,9 @@ export function ThemeSwitcher() {
         <Switch
             checked={theme === 'dark'}
             color="primary"
-            size='lg'
+            size='md'
             thumbIcon={(isSelected) =>
-                theme === 'dark' ? <SunIcon color="black" size={20} /> : <MoonIcon color="black" size={20} />
+                theme === 'dark' ? <SunIcon color="black" size={16} /> : <MoonIcon color="black" size={16} />
             }
 
             onChange={() => theme === 'light' ? setTheme('dark') : setTheme('light')}
