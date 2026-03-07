@@ -2,11 +2,14 @@
 
 import { Card, CardFooter, Image } from "@heroui/react";
 import { IDormitory } from "@/types"
-import { MapIcon, MapPin } from "lucide-react";
+import { MapPin } from "lucide-react";
 import { StartsBlock } from "./ui/stars-block";
+import { useRouter } from "next/navigation";
 
 
 export function DormitoryCard({ dormitory }: { dormitory: IDormitory }) {
+    const router = useRouter();
+
     const firstImage =
         dormitory.images?.find((image) => Boolean(image?.imageUrl))?.imageUrl ??
         dormitory.sourceImageUrls?.find((url) => Boolean(url)) ??
@@ -24,7 +27,13 @@ export function DormitoryCard({ dormitory }: { dormitory: IDormitory }) {
         'Описание отсутствует';
 
     return (
-        <Card isBlurred className="border-none backdrop-blur-2xl shadow-2xl hover:scale-105" isPressable radius="lg">
+        <Card
+            isBlurred
+            className="border-none backdrop-blur-2xl shadow-2xl hover:scale-105"
+            isPressable
+            radius="lg"
+            onPress={() => router.push(`/dormitories/${dormitory.id}`)}
+        >
             <div className="absolute top-3 right-5 z-10">
                 <StartsBlock />
             </div>
@@ -36,13 +45,13 @@ export function DormitoryCard({ dormitory }: { dormitory: IDormitory }) {
                 isZoomed
             />
 
-            <CardFooter className="absolute z-10 block bottom-0 w-full bg-white/20 backdrop-blur-md px-7">
-                <h2 className="text-lg font-semibold text-white mb-2">
+            <CardFooter className="absolute text-start z-10 block bottom-0 w-full bg-white/20 dark:bg-black/20 backdrop-blur-md px-7">
+                <h2 className="text-xl font-semibold text-white mb-2">
                     {dormitoryTitle}
                 </h2>
 
-                <p className="text-base text-white flex gap-1 mb-3">
-                    <MapPin />
+                <p className="text-base text-white flex gap-1 mb-3 items-start">
+                    <MapPin className="block w-fit " size={22} />
                     {dormitoryAddress}
                 </p>
 
@@ -50,7 +59,7 @@ export function DormitoryCard({ dormitory }: { dormitory: IDormitory }) {
 
                 <div className="flex items-center justify-between">
                     <p className="text-white font-semibold text-base">{dormitory.price ? `${dormitory.price} руб./мес.` : 'Цена не указана'}</p>
-                    <p className="text-white text-sm">122 отзывов</p>
+                    <p className="text-neutral-200 text-sm">122 отзывов</p>
                 </div>
             </CardFooter>
         </Card>

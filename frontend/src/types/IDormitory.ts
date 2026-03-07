@@ -36,6 +36,8 @@ export interface IDormitory {
     address?: string | null;
     phone?: string | null;
     website?: string;
+    amenities?: string[];
+    tags?: string[];
     images?: IDormitoryImage[];
 
     // Source fields imported from dormitories.json
