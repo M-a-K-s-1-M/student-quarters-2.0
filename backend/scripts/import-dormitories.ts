@@ -20,6 +20,11 @@ type DormitoryRecord = {
     updatedAt?: string;
 };
 
+type PatternDefinition = {
+    label: string;
+    patterns: RegExp[];
+};
+
 const databaseUrl = process.env.DATABASE_URL;
 
 if (!databaseUrl) {
@@ -31,6 +36,8 @@ const prisma = new PrismaClient({ adapter } as any);
 
 const normalizeWhitespace = (value: string): string =>
     value.replace(/\s+/g, ' ').replace(/\u00A0/g, ' ').trim();
+
+const dedupe = (items: string[]): string[] => Array.from(new Set(items));
 
 const buildDescription = (record: DormitoryRecord): string | null => {
     const sectionText = record.sections
@@ -70,6 +77,58 @@ const extractPhone = (sections: DormitorySection[]): string | null => {
     return normalizeWhitespace(match[0]);
 };
 
+const AMENITY_PATTERNS: PatternDefinition[] = [
+    { label: 'Wi-Fi', patterns: [/wi[-\s]?fi/i, /беспроводн\w*\s+интернет/i, /интернет/i] },
+    { label: 'Общая кухня', patterns: [/кухн/i] },
+    { label: 'Прачечная', patterns: [/прачечн/i, /стирал\w*\s+машин/i] },
+    { label: 'Парковка', patterns: [/парковк/i, /паркинг/i] },
+    { label: 'Кондиционер', patterns: [/кондиционер/i, /сплит[-\s]?систем/i] },
+    { label: 'Охрана 24/7', patterns: [/круглосуточн\w*\s+охра/i, /охран[аы]/i, /видеонаблюдени/i] },
+    { label: 'Душ', patterns: [/\bдуш\b/i, /душев/i] },
+    { label: 'Учебная комната', patterns: [/учебн\w*\s+комнат/i, /комнат\w*\s+для\s+заняти/i] },
+    { label: 'Спорт/фитнес', patterns: [/тренажер/i, /спортзал/i, /фитнес/i, /теннис/i, /дартс/i] },
+    { label: 'Коворкинг/досуг', patterns: [/коворк/i, /досу[гк]/i, /квест/i, /мероприяти/i] },
+];
+
+const TAG_PATTERNS: PatternDefinition[] = [
+    { label: 'После капремонта', patterns: [/капитальн\w*\s+ремонт/i, /после\s+ремонт/i] },
+    { label: 'Коридорный тип', patterns: [/коридорн\w*\s+тип/i] },
+    { label: 'Блочный тип', patterns: [/блочн\w*\s+тип/i] },
+    { label: 'Центр', patterns: [/проспект\s+ленина/i, /ул\.\s+коминтерна/i, /центр/i] },
+    { label: 'Рядом с кампусом', patterns: [/кампус/i, /студгород/i] },
+    { label: '2-3 человека в комнате', patterns: [/2\s*[-–]\s*3\s+человек/i, /по\s*2\s*[-–]\s*3\s+человека/i] },
+];
+
+const hasAnyPattern = (text: string, patterns: RegExp[]): boolean =>
+    patterns.some((pattern) => pattern.test(text));
+
+const extractAmenities = (sections: DormitorySection[]): string[] => {
+    const fullText = sections
+        .map((section) => normalizeWhitespace(section.content))
+        .join(' ');
+
+    const amenities = AMENITY_PATTERNS
+        .filter((entry) => hasAnyPattern(fullText, entry.patterns))
+        .map((entry) => entry.label);
+
+    return dedupe(amenities);
+};
+
+const extractTags = (record: DormitoryRecord, amenities: string[]): string[] => {
+    const fullText = [record.title, ...record.sections.map((section) => section.content)]
+        .map((value) => normalizeWhitespace(value))
+        .join(' ');
+
+    const tagsFromPatterns = TAG_PATTERNS
+        .filter((entry) => hasAnyPattern(fullText, entry.patterns))
+        .map((entry) => entry.label);
+
+    const tagsFromAmenities = amenities
+        .filter((amenity) => ['Wi-Fi', 'Общая кухня', 'Прачечная', 'Парковка', 'Кондиционер', 'Охрана 24/7'].includes(amenity));
+
+    return dedupe([...tagsFromPatterns, ...tagsFromAmenities]);
+};
+
 const filterDormitoryImages = (urls: string[]): string[] => {
     const unique = new Set<string>();
 
@@ -105,6 +164,8 @@ const importDormitories = async (): Promise<void> => {
         const phone = extractPhone(record.sections);
         const website = record.url;
         const images = filterDormitoryImages(record.imageUrls);
+        const amenities = extractAmenities(record.sections);
+        const tags = extractTags(record, amenities);
 
         const existing =
             (await prisma.dormitory.findFirst({ where: { sourceId: record.id } })) ||
@@ -125,6 +186,8 @@ const importDormitories = async (): Promise<void> => {
             address,
             phone,
             website,
+            amenities,
+            tags,
         } as any;
 
         const dormitory = existing
