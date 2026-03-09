@@ -47,6 +47,7 @@ export interface IDormitory {
     sourceSections?: ISections[];
     sourceImageUrls?: string[];
     sourcePhotoGroups?: IPhotoGroups;
+    sourceAllPhotoUrls?: string[];
     sourceExternalLinks?: string[];
     sourceUpdatedAt?: string;
 

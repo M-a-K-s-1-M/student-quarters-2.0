@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@glidejs/glide": "^3.7.1",
     "@heroui/react": "^2.8.9",
     "@tanstack/react-query": "^5.90.21",
     "axios": "^1.13.6",

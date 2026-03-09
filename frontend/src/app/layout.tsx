@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import "@glidejs/glide/dist/css/glide.core.min.css";
 import { siteConfig } from "@/config";
 import { Providers } from "./providers";
 import { MainHeader } from "@/components";
