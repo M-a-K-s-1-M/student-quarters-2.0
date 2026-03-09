@@ -41,6 +41,7 @@ model Dormitory {
   sourceSections      Json?    @map("source_sections")
   sourceImageUrls     String[] @default([]) @map("source_image_urls")
   sourcePhotoGroups   Json?    @map("source_photo_groups")
+  sourceAllPhotoUrls  String[] @default([]) @map("source_all_photo_urls")
   sourceExternalLinks String[] @default([]) @map("source_external_links")
   sourceUpdatedAt     String?  @map("source_updated_at")
   name                String

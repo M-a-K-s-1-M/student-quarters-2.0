@@ -20,6 +20,12 @@ type DormitoryRecord = {
     updatedAt?: string;
 };
 
+type DormitoryPhotoGroups = {
+    dormitory?: string[];
+    dormitoryLife?: string[];
+    dromitoryLife?: string[];
+};
+
 type PatternDefinition = {
     label: string;
     patterns: RegExp[];
@@ -38,6 +44,18 @@ const normalizeWhitespace = (value: string): string =>
     value.replace(/\s+/g, ' ').replace(/\u00A0/g, ' ').trim();
 
 const dedupe = (items: string[]): string[] => Array.from(new Set(items));
+
+const extractAllSourcePhotos = (record: DormitoryRecord): string[] => {
+    const groups = (record.photoGroups as DormitoryPhotoGroups | null) ?? null;
+
+    const groupedUrls = dedupe([
+        ...(groups?.dormitory ?? []),
+        ...(groups?.dormitoryLife ?? []),
+        ...(groups?.dromitoryLife ?? []),
+    ]).filter(Boolean);
+
+    return groupedUrls.length ? groupedUrls : dedupe(record.imageUrls.filter(Boolean));
+};
 
 const buildDescription = (record: DormitoryRecord): string | null => {
     const sectionText = record.sections
@@ -164,6 +182,7 @@ const importDormitories = async (): Promise<void> => {
         const phone = extractPhone(record.sections);
         const website = record.url;
         const images = filterDormitoryImages(record.imageUrls);
+        const sourceAllPhotoUrls = extractAllSourcePhotos(record);
         const amenities = extractAmenities(record.sections);
         const tags = extractTags(record, amenities);
 
@@ -179,6 +198,7 @@ const importDormitories = async (): Promise<void> => {
             sourceSections: record.sections,
             sourceImageUrls: record.imageUrls,
             sourcePhotoGroups: record.photoGroups ?? null,
+            sourceAllPhotoUrls,
             sourceExternalLinks: record.externalLinks,
             sourceUpdatedAt: record.updatedAt ?? null,
             name,
