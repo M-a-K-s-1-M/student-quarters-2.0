@@ -17,12 +17,23 @@ const normalizePhotoUrlForCompare = (url: string): string => {
     try {
         const parsed = new URL(trimmed);
         parsed.hash = '';
-        const pathname = parsed.pathname.replace(/\/+$/, '');
-        return `${parsed.origin.toLowerCase()}${pathname.toLowerCase()}`;
+
+        const host = parsed.hostname.toLowerCase().replace(/^www\./, '');
+        const pathname = decodeURIComponent(parsed.pathname).replace(/\/+$/, '').toLowerCase();
+        const identityKeys = new Set(['id', 'file', 'uid', 'image', 'img', 'src', 'path']);
+
+        const identityEntries = Array.from(parsed.searchParams.entries())
+            .filter(([key]) => identityKeys.has(key.toLowerCase()))
+            .sort(([a], [b]) => a.localeCompare(b));
+
+        const identityQuery = new URLSearchParams(identityEntries).toString();
+
+        return identityQuery ? `${host}${pathname}?${identityQuery}` : `${host}${pathname}`;
     } catch {
         return trimmed
             .replace(/#.*$/, '')
-            .replace(/\?.*$/, '')
+            .replace(/^https?:\/\//i, '')
+            .replace(/^www\./i, '')
             .replace(/\/+$/, '')
             .toLowerCase();
     }
