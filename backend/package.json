@@ -9,6 +9,7 @@
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "import:dormitories": "tsx scripts/import-dormitories.ts",
+    "dedupe:dormitory-photos": "tsx scripts/dedupe-source-all-photos.ts",
     "scrape:dormitories": "ts-node scripts/scrape-dormitories.ts",
     "start": "nest start",
     "start:dev": "nest start --watch",
