@@ -45,16 +45,57 @@ const normalizeWhitespace = (value: string): string =>
 
 const dedupe = (items: string[]): string[] => Array.from(new Set(items));
 
+const normalizePhotoUrlForCompare = (url: string): string => {
+    const trimmed = url.trim();
+
+    try {
+        const parsed = new URL(trimmed);
+        parsed.hash = '';
+
+        // Keep query-free key to avoid duplicates like image.jpg?width=400 and image.jpg?width=800.
+        const pathname = parsed.pathname.replace(/\/+$/, '');
+        return `${parsed.origin.toLowerCase()}${pathname.toLowerCase()}`;
+    } catch {
+        return trimmed
+            .replace(/#.*$/, '')
+            .replace(/\?.*$/, '')
+            .replace(/\/+$/, '')
+            .toLowerCase();
+    }
+};
+
+const uniquePhotoUrls = (urls: string[]): string[] => {
+    const seen = new Set<string>();
+    const result: string[] = [];
+
+    for (const rawUrl of urls) {
+        const original = rawUrl?.trim();
+        if (!original) {
+            continue;
+        }
+
+        const key = normalizePhotoUrlForCompare(original);
+        if (seen.has(key)) {
+            continue;
+        }
+
+        seen.add(key);
+        result.push(original);
+    }
+
+    return result;
+};
+
 const extractAllSourcePhotos = (record: DormitoryRecord): string[] => {
     const groups = (record.photoGroups as DormitoryPhotoGroups | null) ?? null;
 
-    const groupedUrls = dedupe([
+    const groupedUrls = uniquePhotoUrls([
         ...(groups?.dormitory ?? []),
         ...(groups?.dormitoryLife ?? []),
         ...(groups?.dromitoryLife ?? []),
-    ]).filter(Boolean);
+    ]);
 
-    return groupedUrls.length ? groupedUrls : dedupe(record.imageUrls.filter(Boolean));
+    return groupedUrls.length ? groupedUrls : uniquePhotoUrls(record.imageUrls);
 };
 
 const buildDescription = (record: DormitoryRecord): string | null => {
